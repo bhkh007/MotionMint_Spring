@@ -167,7 +167,7 @@ const ViewVariants = () => {
           <b>{variant.year}</b>
         </td>
         <td>
-          <b>{variant.ac === false ? "Yes" : "No"}</b>
+          <b>{variant.ac === true ? "Yes" : "No"}</b>
         </td>
         <td>
           <b>{variant.pricePerDay}</b>
