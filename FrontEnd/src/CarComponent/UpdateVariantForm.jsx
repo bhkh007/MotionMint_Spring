@@ -62,7 +62,14 @@ const UpdateVariantForm = () => {
   }, []);
 
   const handleInput = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+
+    if (type === "checkbox" && name === "isAC") {
+      setVariantRequest({ ...variantRequest, [name]: checked });
+    } else {
+      setVariantRequest({ ...variantRequest, [name]: value });
+    }
+
   
     if (name === "name" && value && value[0] !== value[0].toUpperCase()) {
       setErrors((prevErrors) => ({
@@ -172,7 +179,7 @@ const UpdateVariantForm = () => {
     formData.append("modelNumber", variantRequest.modelNumber);
     formData.append("year", variantRequest.year);
     formData.append("fuelType", variantRequest.fuelType);
-    formData.append("isAC", variantRequest.isAC);
+    formData.append("isAC", variantRequest.isAC); // Convert boolean to string
     formData.append("seatingCapacity", variantRequest.seatingCapacity);
     formData.append("pricePerDay", variantRequest.pricePerDay);
     formData.append("companyId", variantRequest.companyId);
