@@ -2,6 +2,61 @@ import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
+
+
+const PasswordStrengthMeter = ({ password }) => {
+  const getStrength = (password) => {
+    const strength = {
+      value: 0,
+      text: 'Weak',
+      color: 'red',
+    };
+
+    const hasLetters = /[a-zA-Z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasCapitalLetters = /[A-Z]/.test(password);
+    const hasSpecialCharacters = /[@$!%*#?&]/.test(password);
+
+    if (hasLetters && hasNumbers && hasCapitalLetters && hasSpecialCharacters) {
+      strength.value = 100;
+      strength.text = 'Strong';
+      strength.color = 'green';
+    } else if (hasLetters && hasNumbers && hasCapitalLetters) {
+      strength.value = 75;
+      strength.text = 'Good';
+      strength.color = 'blue';
+    } else if (hasLetters && hasNumbers) {
+      strength.value = 50;
+      strength.text = 'Medium';
+      strength.color = 'yellow';
+    } else if (hasLetters) {
+      strength.value = 25;
+      strength.text = 'Weak';
+      strength.color = 'red';
+    }
+
+    return strength;
+  };
+
+  const { value, text, color } = getStrength(password);
+
+  return (
+    <div className="password-strength-meter">
+      <div
+        className="password-strength-bar"
+        style={{
+          width: `${value}%`,
+          backgroundColor: color,
+        }}
+      />
+      <div className="password-strength-text" style={{ color: color }}>
+        {text}
+      </div>
+    </div>
+  );
+};
 
 const AdminRegisterForm = () => {
   let navigate = useNavigate();
@@ -9,6 +64,7 @@ const AdminRegisterForm = () => {
 
   const [registerRequest, setRegisterRequest] = useState({});
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleUserInput = (e) => {
     const { name, value } = e.target;
@@ -42,7 +98,7 @@ const AdminRegisterForm = () => {
         setErrors({
           ...errors,
           password:
-            "Password must be at least 8 characters long, contain one letter, one digit, and one special character",
+            "",
         });
       } else {
         const { password, ...rest } = errors;
@@ -146,7 +202,7 @@ const AdminRegisterForm = () => {
 
   return (
     <div>
-      <div className="mt-2 d-flex aligns-items-center justify-content-center">
+      <div className="mt-2 d-flex align-items-center justify-content-center">
         <div className="form-card border-color mb-2" style={{ width: "25rem" }}>
           <div className="container-fluid">
             <div
@@ -159,7 +215,7 @@ const AdminRegisterForm = () => {
               <h4 className="card-title">Admin Register</h4>
             </div>
             <div className="card-body mt-3">
-              <form> 
+              <form>
                 <div className="mb-3 text-color">
                   <label htmlFor="emailId" className="form-label">
                     <b>Email Id</b>
@@ -180,20 +236,30 @@ const AdminRegisterForm = () => {
                   <label htmlFor="password" className="form-label">
                     <b>Password</b>
                   </label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    name="password"
-                    onChange={handleUserInput}
-                    value={registerRequest.password || ""}
-                    autoComplete="on"
-                  />
+                  <div className="input-group">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="form-control"
+                      id="password"
+                      name="password"
+                      onChange={handleUserInput}
+                      value={registerRequest.password || ""}
+                      autoComplete="on"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
                   {errors.password && (
                     <small className="text-danger">{errors.password}</small>
                   )}
+                  <PasswordStrengthMeter password={registerRequest.password || ""} />
                 </div>
-                <div className="d-flex aligns-items-center justify-content-center mb-2">
+                <div className="d-flex align-items-center justify-content-center mb-2">
                   <button
                     type="submit"
                     className="btn"
