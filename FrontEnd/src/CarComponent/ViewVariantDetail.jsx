@@ -1,199 +1,296 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import seat from "../images/seat.png";
+import rupee from "../images/rupee.png";
+import company from "../images/company.png";
+import fuelType from "../images/fuel.png";
+import model from "../images/model.png";
+import year from "../images/year.png";
+import ac from "../images/ac.png";
+import rent from "../images/rent.png";
 
 const ViewVariantDetail = () => {
-  const { variantId } = useParams(); // Get the variant ID from the URL params
-  const [variantDetails, setVariantDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { variantId } = useParams();
+
+  const [variant, setVariant] = useState({
+    company: {
+      name: "",
+    },
+  });
+
+  const customer = JSON.parse(sessionStorage.getItem("active-customer"));
+  const customer_jwtToken = sessionStorage.getItem("customer-jwtToken");
+
+  const navigate = useNavigate();
+
+  const [booking, setBooking] = useState({
+    startDate: "",
+    endDate: "",
+  });
+
+  // Update state on input change
+  const handleBookingInput = (e) => {
+    setBooking({ ...booking, [e.target.name]: e.target.value });
+  };
+
+  // Retrieve variant details
+  const retrieveVariant = async () => {
+    const response = await axios.get(
+      "http://localhost:8080/api/variant/fetch?variantId=" + variantId
+    );
+    return response.data;
+  };
 
   useEffect(() => {
-    const fetchVariantDetails = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8080/api/variant/${variantId}`
-        );
-        setVariantDetails(response.data.variant);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching variant details:", error);
-        toast.error("Failed to fetch variant details. Please try again later.", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        setLoading(false);
+    const getVariant = async () => {
+      const res = await retrieveVariant();
+      if (res) {
+        setVariant(res.variants[0]);
       }
     };
+    getVariant();
+  }, []);
 
-    fetchVariantDetails();
-  }, [variantId]);
+  // Format date from epoch
+  const formatDateFromEpoch = (epochTime) => {
+    const date = new Date(Number(epochTime));
+    return date.toLocaleString(); 
+  };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // Calculate minimum end date
+  const getMinEndDate = () => {
+    const startDate = new Date(booking.startDate);
+    if (startDate.toString() === "Invalid Date") return ""; // Invalid start date
+    startDate.setDate(startDate.getDate() + 1);
+    return startDate.toISOString().split("T")[0];
+  };
 
-  if (!variantDetails) {
-    return <div>No variant details found.</div>;
-  }
+  // Book car with validation
+  const bookCar = (e) => {
+    e.preventDefault();
 
-  // Convert isac to a boolean value
-  const isACAvailable = variantDetails.isac ? "Yes" : "No";
+    if (customer === null) {
+      alert("Please Login to Book Your Car!!!");
+      return;
+    }
+
+    const startDate = new Date(booking.startDate);
+    const endDate = new Date(booking.endDate);
+    const today = new Date();
+
+    // Validation
+    if (startDate < today) {
+      toast.error("The start date cannot be in the past!", {
+        position: "top-center",
+        autoClose: 1000,
+      });
+      return;
+    }
+
+    if (endDate <= startDate) {
+      toast.error("The end date must be after the start date!", {
+        position: "top-center",
+        autoClose: 1000,
+      });
+      return;
+    }
+
+    booking.customerId = customer.id;
+    booking.vehicleId = variantId;
+
+    fetch("http://localhost:8080/api/booking/add", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(booking),
+    })
+      .then((result) => {
+        result.json().then((res) => {
+          if (res.success) {
+            toast.success(res.responseMessage, {
+              position: "top-center",
+              autoClose: 1000,
+            });
+            setTimeout(() => {
+              navigate("/home");
+            }, 2000);
+          } else {
+            toast.error(res.responseMessage, {
+              position: "top-center",
+              autoClose: 1000,
+            });
+          }
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("It seems server is down", {
+          position: "top-center",
+          autoClose: 1000,
+        });
+      });
+  };
 
   return (
-    <div>
-      <div className="mt-2 d-flex aligns-items-center justify-content-center mb-4">
-        <div className="card form-card custom-bg" style={{ width: "60rem" }}>
-          <div className="container-fluid">
-            <div
-              className="card-header bg-color custom-bg-text mt-2 text-center"
-              style={{
-                borderRadius: "1em",
-                height: "45px",
-              }}
-            >
-              <h5 className="card-title">Variant Details</h5>
-            </div>
-            <div className="card-body text-color">
-              <div className="row g-3">
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Variant Name</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.name}
-                    readOnly
-                  />
-                </div>
+    <div className="mb-3">
+      <div className="col ml-5 mt-3 ms-5 me-5">
+        <div className="card form-card custom-bg h-100">
+          <div className="card-body">
+            <div className="row">
+              {/* Left side - Variant */}
+              <div className="col-md-4">
+                <img
+                  src={"http://localhost:8080/api/variant/" + variant.image}
+                  className="card-img-top rounded img-fluid"
+                  alt="Company Logo"
+                  style={{ maxWidth: "500px" }}
+                />
+              </div>
+              {/* Right side - Variant Details */}
+              <div className="col-md-8">
+                <h1 className="header-logo-color">{variant.name}</h1>
+                <p className="text-color">{variant.description}</p>
 
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Variant Description</b>
-                  </label>
-                  <textarea
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.description}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Company</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.company.name}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Model Number</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.modelNumber}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Year</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.year}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Fuel Type</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.fuelType}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Seating Capacity</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.seatingCapacity}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>Price Per Day</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={variantDetails.pricePerDay}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    <b>AC Available?</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={isACAvailable}
-                    readOnly
-                  />
-                </div>
-
-                <div className="col-md-12 mb-3 text-center">
-                  <label className="form-label">
-                    <b>Image</b>
-                  </label>
-                  <div>
-                    {variantDetails.image && (
-                      <img
-                        src={variantDetails.image}
-                        alt="Variant"
-                        style={{ width: "300px", height: "200px" }}
-                      />
-                    )}
-                    {!variantDetails.image && (
-                      <div className="text-danger">No image available</div>
-                    )}
+                <h4 className="card-title d-flex justify-content-between header-logo-color mt-4">
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={fuelType}
+                      height="30"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <span className="text-color">{variant.fuelType}</span>
                   </div>
-                </div>
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={seat}
+                      height="30"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <span className="text-color">{variant.seatingCapacity}</span>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={company}
+                      height="30"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <span className="text-color">{variant.company.name}</span>
+                  </div>
+                </h4>
 
-                <div className="col-12 text-center mt-4">
-                  <button
-                    className="btn custom-bg text-color"
-                    onClick={() => window.history.back()}
-                  >
-                    Back to List
-                  </button>
+                <h4 className="card-title d-flex justify-content-between header-logo-color mt-4">
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={model}
+                      height="30"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <span className="text-color">{variant.modelNumber}</span>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={year}
+                      height="30"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <span className="text-color">{variant.year}</span>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={ac}
+                      height="30"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <span className="text-color ms-2">{variant.ac === true ? "Yes" : "No"}</span>
+                  </div>
+                </h4>
+
+                <h4 className="card-title d-flex justify-content-between header-logo-color mt-4">
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={rent}
+                      height="35"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <img
+                      src={rupee}
+                      height="30"
+                      width="auto"
+                      className="d-inline-block align-top me-1"
+                      alt=""
+                    />
+                    <span className="text-color">{variant.pricePerDay}</span>
+                  </div>
+                </h4>
+
+                <div className="d-flex justify-content-left mt-5">
+                  <form className="row g-3" onSubmit={bookCar}>
+                    <div className="col-auto">
+                      <label htmlFor="from" className="text-color">
+                        <h5>From</h5>
+                      </label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        id="startDate"
+                        name="startDate"
+                        onChange={handleBookingInput}
+                        value={booking.startDate}
+                        min={new Date().toISOString().split("T")[0]} // Prevent past dates
+                        required
+                      />
+                    </div>
+                    <div className="col-auto">
+                      <label htmlFor="checkout" className="text-color">
+                        <h5>To</h5>
+                      </label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        id="endDate"
+                        name="endDate"
+                        onChange={handleBookingInput}
+                        value={booking.endDate}
+                        min={getMinEndDate()} // Prevent selecting invalid "To" dates
+                        required
+                      />
+                    </div>
+
+                    <div className="col-auto mt-5">
+                      <input
+                        type="submit"
+                        className="btn custom-bg bg-color mb-3"
+                        value="Book Car"
+                        style={{
+                          backgroundColor: "#28a745", // Success green color
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "5px",
+                          padding: "10px 20px",
+                          fontSize: "16px",
+                        }}
+                      />
+                      <ToastContainer />
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
