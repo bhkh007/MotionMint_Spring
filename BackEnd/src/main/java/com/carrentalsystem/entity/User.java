@@ -5,12 +5,13 @@ package com.carrentalsystem.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 
 import jakarta.persistence.OneToOne;
@@ -21,33 +22,39 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	
+	@Column(unique = true)
+	private String emailId;
 
 	private String firstName;
 
 	private String lastName;
 
-	private String emailId;
 
 	@JsonIgnore
 	private String password;
 
+	@Column(unique = true)
 	private String phoneNo;
 
 	private String role;
-
+	
+	private String status;
 	
 //	@OneToMany(mappedBy="customer")
 //	private List<Payment>payments=new ArrayList();
 
-	@ManyToOne
-	@JoinColumn(name = "address_id")
+	@OneToOne
+	@JoinColumn(name = "address_id",referencedColumnName = "id"	)
 	private Address address;
+
 
 	@OneToOne
 	@JoinColumn(name = "license_id")
 	private DrivingLicense license;
 
-	private String status;
+	
+	
 
 	public int getId() {
 		return id;
@@ -129,4 +136,20 @@ public class User {
 		this.license = license;
 	}
 
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", emailId=" + emailId + ", firstName=" + firstName + ", lastName=" + lastName
+				+ ", password=" + password + ", phoneNo=" + phoneNo + ", role=" + role + ", status=" + status
+				+ ", address=" + address + ", license=" + license + "]";
+	}
+
+
+	
+	
+	
 }
+
+	
+	
+	
+	
