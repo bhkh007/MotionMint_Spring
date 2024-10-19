@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.carrentalsystem.dto.AddDrivingLicenseRequest;
 import com.carrentalsystem.dto.CommonApiResponse;
 import com.carrentalsystem.dto.RegisterUserRequestDto;
+import com.carrentalsystem.dto.UpdateUserRequestDto;
 import com.carrentalsystem.dto.UserLoginRequest;
 import com.carrentalsystem.dto.UserLoginResponse;
 import com.carrentalsystem.dto.UserResponseDto;
@@ -69,6 +70,17 @@ public class UserController {
 	public ResponseEntity<CommonApiResponse> updateUserStatus(@RequestBody UserStatusUpdateRequestDto request) {
 		return userResource.updateUserStatus(request);
 	}
+	
+	
+	@PutMapping("/profile/update/{userId}")
+    @Operation(summary = "API to update user profile details")
+    public ResponseEntity<CommonApiResponse> updateUserProfile(
+            @PathVariable("userId") int userId,
+            @RequestBody UpdateUserRequestDto request) {
+        request.setUserId(userId);
+        return userResource.updateUserProfile(request);
+    }
+	
 
 	@GetMapping("/fetch/user-id")
 	@Operation(summary = "Api to get User Detail By User Id")
