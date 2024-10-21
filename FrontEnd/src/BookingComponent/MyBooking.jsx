@@ -170,7 +170,6 @@ const MyBooking = () => {
                 {bookings.map((booking) => {
                   return (
                     <tr>
-                      <tr key={booking.bookingId}></tr>
                       <td>
                         <img
                           src={
@@ -259,6 +258,14 @@ const MyBooking = () => {
                         <button
                           onClick={() => viewCustomerBookingDetail(booking)}
                           className="btn btn-sm bg-color custom-bg-text mt-2"
+                          style={{
+                            backgroundColor: 'green',
+                            color: 'white',
+                            border: 'none',
+                            padding: '10px 20px',
+                            cursor: 'pointer',
+                            transition: 'margin 0.3s',
+                          }} 
                         >
                           <b>View</b>
                         </button>

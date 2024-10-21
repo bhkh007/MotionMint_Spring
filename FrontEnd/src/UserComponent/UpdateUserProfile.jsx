@@ -26,6 +26,7 @@ const UpdateUserProfile = () => {
     confirmPasswordError: "",
     phoneNoError: "",
     pincodeError: "",
+    emailError: "",
   });
 
   useEffect(() => {
@@ -63,9 +64,19 @@ const UpdateUserProfile = () => {
 
   const handleUserInput = (e) => {
     const { name, value } = e.target;
-    setUser({ ...user, [name]: value });
 
-    // Validation
+    if (name === 'street' || name === 'city' || name === 'pincode') {
+      setUser((prevUser) => ({
+        ...prevUser,
+        address: {
+          ...prevUser.address,
+          [name]: value,
+        },
+      }));
+    } else {
+      setUser({ ...user, [name]: value });
+    }
+
     switch (name) {
       case "password":
         validatePassword(value);
@@ -78,6 +89,9 @@ const UpdateUserProfile = () => {
         break;
       case "pincode":
         validatePincode(value);
+        break;
+      case "emailId":
+        validateEmail(value);
         break;
       default:
         break;
@@ -143,64 +157,63 @@ const UpdateUserProfile = () => {
     }
   };
 
+  const validateEmail = (email) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|outlook\.com|rediff\.com|hotmail\.com)$/;
+    if (!emailPattern.test(email)) {
+      setErrors({
+        ...errors,
+        emailError: "Please enter a valid email address.",
+      });
+    } else {
+      setErrors({
+        ...errors,
+        emailError: "",
+      });
+    }
+  };
+
   const updateUser = async (e) => {
     e.preventDefault();
 
-    if (errors.passwordError || errors.confirmPasswordError || errors.phoneNoError || errors.pincodeError) {
+    if (errors.passwordError || errors.confirmPasswordError || errors.phoneNoError || errors.pincodeError || errors.emailError) {
       toast.error("Please correct the errors before updating.", {
         position: "top-center",
         autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
       return;
     }
 
     try {
-      const response = await axios.put(`http://localhost:8080/api/user/update/${id}`, user, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
+      const response = await axios.put(`http://localhost:8080/api/user/profile/update/${id}`, {
+        userId: id,
+        emailId: user.emailId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNo,
+        street: user.street,
+        city: user.city,
+        pincode: user.pincode,
       });
 
       if (response.data.success) {
         toast.success(response.data.responseMessage, {
-          position: 'top-center',
+          position: "top-center",
           autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
         });
 
         setTimeout(() => {
-          navigate('/user/profile/detail');
+          navigate('/home');
         }, 1000);
       } else {
         toast.error(response.data.responseMessage, {
-          position: 'top-center',
+          position: "top-center",
           autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
         });
       }
     } catch (error) {
       toast.error('Server error', {
         position: 'top-center',
         autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
     }
   };
@@ -252,6 +265,20 @@ const UpdateUserProfile = () => {
                   />
                 </div>
 
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="role" className="form-label">
+                    <b>Role</b>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="role"
+                    name="role"
+                    value={user.role}
+                    disabled
+                  />
+                </div>
+                
                 <div className="col-md-6 mb-3 text-color">
                   <b>
                     <label className="form-label">Email Id</label>
@@ -264,6 +291,7 @@ const UpdateUserProfile = () => {
                     onChange={handleUserInput}
                     value={user.emailId}
                   />
+                  {errors.emailError && <div className="text-danger mt-2">{errors.emailError}</div>}
                 </div>
                 
                 <div className="col-md-6 mb-3">
@@ -298,34 +326,48 @@ const UpdateUserProfile = () => {
 
                 <div className="col-md-6 mb-3">
                   <label htmlFor="phoneNo" className="form-label">
-                    <b>Contact No</b>
+                    <b>Phone Number</b>
                   </label>
                   <input
-                    type="tel"
+                    type="text"
                     className="form-control"
                     id="phoneNo"
                     name="phoneNo"
                     onChange={handleUserInput}
                     value={user.phoneNo}
-                    maxLength="10"
                   />
                   {errors.phoneNoError && <div className="text-danger mt-2">{errors.phoneNoError}</div>}
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label htmlFor="pincode" className="form-label">
+                    <b>Pincode</b>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="pincode"
+                    name="pincode"
+                    onChange={handleUserInput}
+                    value={user.pincode}
+                  />
+                  {errors.pincodeError && <div className="text-danger mt-2">{errors.pincodeError}</div>}
                 </div>
 
                 <div className="col-md-6 mb-3">
                   <label htmlFor="street" className="form-label">
                     <b>Street</b>
                   </label>
-                  <textarea
+                  <input
+                    type="text"
                     className="form-control"
                     id="street"
                     name="street"
-                    rows="3"
                     onChange={handleUserInput}
                     value={user.street}
                   />
                 </div>
-                
+
                 <div className="col-md-6 mb-3">
                   <label htmlFor="city" className="form-label">
                     <b>City</b>
@@ -340,43 +382,19 @@ const UpdateUserProfile = () => {
                   />
                 </div>
 
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="pincode" className="form-label">
-                    <b>Pincode</b>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="pincode"
-                    name="pincode"
-                    onChange={handleUserInput}
-                    value={user.pincode}
-                    maxLength="6"
-                  />
-                  {errors.pincodeError && <div className="text-danger mt-2">{errors.pincodeError}</div>}
-                </div>
+                
 
-                <div className="d-flex aligns-items-center justify-content-center">
-                  <input
-                    type="submit"
-                    className="btn bg-color custom-bg-text"
-                    style={{
-                      backgroundColor: "#28a745", // Success green color
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "10px 20px",
-                      fontSize: "16px",
-                    }}
-                    value="Update Profile"
-                  />
+                <div className="col-12 text-center mt-4">
+                  <button type="submit" className="btn btn-primary">
+                    Update
+                  </button>
                 </div>
-                <ToastContainer />
               </form>
             </div>
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

@@ -177,7 +177,7 @@ const AddDrivingLicense = () => {
                   )}
                 </div>
                 <div className="col-md-6 mb-3">
-                  <label for="formFile" class="form-label">
+                  <label htmlfor="formFile" class="form-label">
                     <b> Select License Pic</b>
                   </label>
                   <input

@@ -80,8 +80,8 @@ const HomePage = () => {
 
       <h4 className="text-color text-center mt-3">Search Cars here..!!</h4>
       <div className="d-flex aligns-items-center justify-content-center mt-3">
-        <form class="row g-3">
-          <div class="col-auto">
+        <form className="row g-3">
+          <div className="col-auto">
             <select
               onChange={(e) => setTempCompanyId(e.target.value)}
               className="form-control"
@@ -90,15 +90,15 @@ const HomePage = () => {
               <option value="">Select Car Company..</option>
 
               {companies.map((company) => {
-                return <option value={company.id}> {company.name} </option>;
+                return <option key={company.id} value={company.id}> {company.name} </option>;
               })}
             </select>
           </div>
 
-          <div class="col-auto">
+          <div className="col-auto">
             <button
               type="submit"
-              class="btn bg-color custom-bg-text mb-3"
+              className="btn bg-color custom-bg-text mb-3"
               onClick={searchCompany}
             >
               <b>Search</b>

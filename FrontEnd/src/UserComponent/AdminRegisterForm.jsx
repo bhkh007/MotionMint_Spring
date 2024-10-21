@@ -21,20 +21,20 @@ const PasswordStrengthMeter = ({ password }) => {
 
     if (hasLetters && hasNumbers && hasCapitalLetters && hasSpecialCharacters) {
       strength.value = 100;
-      strength.text = 'Strong';
-      strength.color = 'green';
+      strength.text = "Strong";
+      strength.color = "green";
     } else if (hasLetters && hasNumbers && hasCapitalLetters) {
       strength.value = 75;
-      strength.text = 'Good';
-      strength.color = 'blue';
-    } else if (hasLetters && hasNumbers) {
+      strength.text = "Good";
+      strength.color = "blue";
+    } else if (hasLetters && hasCapitalLetters) {
       strength.value = 50;
-      strength.text = 'Medium';
-      strength.color = 'yellow';
+      strength.text = "Medium";
+      strength.color = "yellow";
     } else if (hasLetters) {
       strength.value = 25;
-      strength.text = 'Weak';
-      strength.color = 'red';
+      strength.text = "Weak";
+      strength.color = "red";
     }
 
     return strength;

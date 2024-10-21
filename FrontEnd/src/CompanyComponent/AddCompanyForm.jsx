@@ -18,22 +18,12 @@ const AddCompanyForm = () => {
       [name]: value,
     });
 
-    // Validate the first letter of the company name in real-time
-    if (name === "name" && value && value[0] !== value[0].toUpperCase()) {
-      setError("The first letter of the company name must be capitalized.");
-    } else {
-      setError(""); // Clear error if input is valid or empty
-    }
   };
 
   const addCompany = (e) => {
     e.preventDefault();
 
-    // Additional validation before submission
-    if (addCompanyRequest.name && addCompanyRequest.name[0] !== addCompanyRequest.name[0].toUpperCase()) {
-      setError("The first letter of the company name must be capitalized.");
-      return;
-    }
+    
 
     fetch("http://localhost:8080/api/company/add", {
       method: "POST",
