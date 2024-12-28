@@ -19,7 +19,7 @@ public class RequestHeaderInterceptor implements HandlerInterceptor {
 	// If you return 'true', the request will continue processing; 'false' will stop
 	// the request
 
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+	public boolean preHandle(@SuppressWarnings("null") HttpServletRequest request, @SuppressWarnings("null") HttpServletResponse response, @SuppressWarnings("null") Object handler)
 			throws Exception {
 
 		LOG.info("preHandle() method invoked");
@@ -36,8 +36,8 @@ public class RequestHeaderInterceptor implements HandlerInterceptor {
 	// You can perform operations after the handler method and before rendering the
 	// view
 
-	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-			ModelAndView modelAndView) throws Exception {
+	public void postHandle(@SuppressWarnings("null") HttpServletRequest request, @SuppressWarnings("null") HttpServletResponse response, @SuppressWarnings("null") Object handler,
+			@SuppressWarnings("null") ModelAndView modelAndView) throws Exception {
 		// LOG.info("postHandle() method invoked");
 
 		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
@@ -46,7 +46,7 @@ public class RequestHeaderInterceptor implements HandlerInterceptor {
 	// This method is called after the request has been completed
 	// You can perform cleanup or logging here
 
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+	public void afterCompletion(@SuppressWarnings("null") HttpServletRequest request, @SuppressWarnings("null") HttpServletResponse response, @SuppressWarnings("null") Object handler, @SuppressWarnings("null") Exception ex)
 			throws Exception {
 
 		LOG.info("afterCompletion() method invoked");
