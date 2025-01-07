@@ -2,6 +2,7 @@
 <section name="Workbench">
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="C:\Users\bhavesh.khandar\Desktop\MotionMint_Spring\BackEnd"/>
 			<item value="E:\CDAC\A car rental\car-rental-system-backend-master"/>
 		</list>
 		<list key="projectNameTemplate">
