@@ -31,6 +31,7 @@ public class StorageServiceImpl implements StorageService {
 	@Override
 	public String storeVariantImage(MultipartFile file) {
 		System.out.println(file.getOriginalFilename());
+		@SuppressWarnings("null")
 		String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
 		System.out.println(ext);
 		String fileName = UUID.randomUUID().toString().replaceAll("-", "") + ext;
@@ -68,6 +69,7 @@ public class StorageServiceImpl implements StorageService {
 	@Override
 	public String storeLicenseImage(MultipartFile file) {
 		System.out.println(file.getOriginalFilename());
+		@SuppressWarnings("null")
 		String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
 		System.out.println(ext);
 		String fileName = UUID.randomUUID().toString().replaceAll("-", "") + ext;

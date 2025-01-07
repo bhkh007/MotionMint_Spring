@@ -16,7 +16,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
 	private RequestHeaderInterceptor requestHeaderInterceptor;
 	
 	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
+	public void addInterceptors(@SuppressWarnings("null") InterceptorRegistry registry) {
 		registry.addInterceptor(requestHeaderInterceptor);
 	}
 
